@@ -94,7 +94,7 @@ analytics:
 # Site Author
 author:
   name             : "TSUMIRE Sunajima"
-  avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
+  avatar           : "assets/image/food_tsumire.png"
   bio              : "Game Designer, Maneger, Otaku, Japanese Idol Producer"
   location         : "Tokyo"
   email            : 
