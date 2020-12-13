@@ -97,27 +97,27 @@ author:
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
   bio              : "Game Designer, Maneger, Otaku, Japanese Idol Producer"
   location         : "Tokyo"
-  email            : # "tsumire.sunajima@gmail.com"
+  email            : 
   links:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
-       url: "mailto:tsumire.sunajima@email.com"
+      url: "mailto:tsumire.sunajima@email.com"
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-       url: "https://twitter.com/tsumiresunajima"
+      url: "https://twitter.com/tsumiresunajima"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-       url: "https://github.com/tsumire-sunajima"
+      url: "https://github.com/tsumire-sunajima"
 
 # Site Footer
 footer:
   links:
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-       url: "https://twitter.com/tsumiresunajima"
+      url: "https://twitter.com/tsumiresunajima"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-       url: "https://github.com/tsumire-sunajima"
+      url: "https://github.com/tsumire-sunajima"
 
 
 # Reading Files
