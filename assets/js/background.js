@@ -17,22 +17,28 @@ class NightSky {
         this.targetRotationY = 0;
         this.cameraDistance = 6;
         this.colors = [
-            0xffffff, // 白
-            0xff69b4, // ピンク
-            0x00ffff, // シアン
-            0xffff00, // イエロー
-            0xff00ff, // マゼンタ
-            0x00ff00, // ライム
-            0xffa500  // オレンジ
+            0x0378A6, // ブルー
+            0x03A66A, // グリーン
+            0xF2B705, // イエロー
+            0x4CC4BE, // ターコイズ
+            0xF29F05, // オレンジ
+            0xF24C27, // レッド
+            0xFA4967, // ピンク
+            0xE33696, // マゼンタ
+            0x1E5DD6, // ネイビー
+            0x9BE858  // ライム
         ];
         this.particleColors = [
-            0xffffff, // 白
-            0xff69b4, // ピンク
-            0x00ffff, // シアン
-            0xffff00, // イエロー
-            0xff00ff, // マゼンタ
-            0x00ff00, // ライム
-            0xffa500  // オレンジ
+            0x0378A6, // ブルー
+            0x03A66A, // グリーン
+            0xF2B705, // イエロー
+            0x4CC4BE, // ターコイズ
+            0xF29F05, // オレンジ
+            0xF24C27, // レッド
+            0xFA4967, // ピンク
+            0xE33696, // マゼンタ
+            0x1E5DD6, // ネイビー
+            0x9BE858  // ライム
         ];
         this.lastColorChange = 0; // 最後に色を変更した時間
         this.colorChangeInterval = 1000; // 色変更の間隔（ミリ秒）
@@ -154,7 +160,7 @@ class NightSky {
         particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
 
         const particleMaterial = new THREE.PointsMaterial({
-            size: 0.15,
+            size: 0.20,
             transparent: true,
             opacity: 0.8,
             vertexColors: true

@@ -274,7 +274,7 @@ h3 {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(25, 118, 210, 0.8); /* 青系統のオーバーレイ */
+  background-color: rgba(25, 118, 210, 0.3); /* 青系統のオーバーレイの透明度を下げる */
   z-index: 1;
 }
 
@@ -311,7 +311,7 @@ h3 {
 }
 
 .overlay {
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.2); /* 黒のオーバーレイの透明度を下げる */
   height: 100%;
   left: 0;
   position: absolute;
