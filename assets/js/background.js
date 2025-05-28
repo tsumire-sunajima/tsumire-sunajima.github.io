@@ -62,7 +62,7 @@ class NightSky {
         // ワイヤーフレームのマテリアルを作成
         this.lineMaterial = new LineMaterial({ // Note: 'this.' prefix
             color: 0xffffff,
-            linewidth: 2, // in pixels
+            linewidth: 4, // in pixels
             // transparent: true, // LineMaterial might handle transparency differently or by default
             // opacity: 0.8 // Opacity is part of the color in LineMaterial (e.g. using hex with alpha or .opacity property)
         });
