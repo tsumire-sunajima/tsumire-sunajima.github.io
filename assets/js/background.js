@@ -21,7 +21,7 @@ class NightSky {
 
     init() {
         // レンダラーの設定
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.updateRendererSize();
         this.renderer.setClearColor(0x000000, 1);
         this.container.insertBefore(this.renderer.domElement, this.container.firstChild);
 
@@ -44,6 +44,17 @@ class NightSky {
         window.addEventListener('resize', () => this.onWindowResize(), false);
     }
 
+    updateRendererSize() {
+        const sideNavWidth = 190; // side-navの幅
+        const isLargeScreen = window.innerWidth > 992; // 992px以上がデスクトップ表示
+        const width = isLargeScreen ? window.innerWidth - sideNavWidth : window.innerWidth;
+        const height = window.innerHeight;
+
+        this.renderer.setSize(width, height);
+        this.camera.aspect = width / height;
+        this.camera.updateProjectionMatrix();
+    }
+
     updateCameraPosition() {
         const phi = Math.PI / 4 + this.targetRotationY;
         const theta = Math.PI / 6 + this.targetRotationX;
@@ -60,11 +71,9 @@ class NightSky {
         const geometry = new THREE.IcosahedronGeometry(2.5, 1);
         
         // ワイヤーフレームのマテリアルを作成
-        this.lineMaterial = new LineMaterial({ // Note: 'this.' prefix
+        this.lineMaterial = new LineMaterial({
             color: 0xffffff,
-            linewidth: 4, // in pixels
-            // transparent: true, // LineMaterial might handle transparency differently or by default
-            // opacity: 0.8 // Opacity is part of the color in LineMaterial (e.g. using hex with alpha or .opacity property)
+            linewidth: 4,
         });
         this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
 
@@ -76,7 +85,7 @@ class NightSky {
         ];
 
         positions.forEach((pos, index) => {
-            const wireframeGeometry = new WireframeGeometry2(geometry); // Use the existing 'geometry'
+            const wireframeGeometry = new WireframeGeometry2(geometry);
             const wireframeMesh = new Wireframe(wireframeGeometry, this.lineMaterial);
             wireframeMesh.computeLineDistances();
             wireframeMesh.position.set(pos.x, pos.y, pos.z);
@@ -113,10 +122,8 @@ class NightSky {
     }
 
     onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        if (this.lineMaterial) { // Add a check to ensure lineMaterial is initialized
+        this.updateRendererSize();
+        if (this.lineMaterial) {
             this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
         }
     }
