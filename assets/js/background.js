@@ -16,7 +16,15 @@ class NightSky {
         this.targetRotationX = 0;
         this.targetRotationY = 0;
         this.cameraDistance = 6;
-        this.particleCount = 100; // 初期パーティクル数を保持
+        this.colors = [
+            0x1a1a2e, // ダークネイビー
+            0x16213e, // ダークブルー
+            0x0f3460, // ネイビー
+            0x1b1b2f, // ダークパープル
+            0x1f1f3d, // ダークインディゴ
+            0x2c1810, // ダークブラウン
+            0x1c1c1c  // ダークグレー
+        ];
         this.init();
     }
 
@@ -42,7 +50,7 @@ class NightSky {
         });
 
         // クリックイベントの設定
-        this.renderer.domElement.addEventListener('click', () => this.addMoreParticles());
+        document.addEventListener('click', () => this.changeColors());
 
         // アニメーション開始
         this.animate();
@@ -226,88 +234,21 @@ class NightSky {
         }
     }
 
-    addMoreParticles() {
-        const additionalParticles = 50; // クリックごとに追加するパーティクル数
-        this.particleCount += additionalParticles;
+    // 色を変更するメソッド
+    changeColors() {
+        // 背景色と正二十面体の色をランダムに選択
+        let bgColor, sphereColor;
+        do {
+            bgColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+            sphereColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+        } while (bgColor === sphereColor);
 
-        this.spheres.forEach((sphere, index) => {
-            // 新しいパーティクルジオメトリを作成
-            const newGeometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(additionalParticles * 3);
-            const colors = new Float32Array(additionalParticles * 3);
-            const velocities = [];
+        // 背景色を変更
+        this.renderer.setClearColor(bgColor, 1);
 
-            // ランダムな色を生成する関数
-            const getRandomColor = () => {
-                const colors = [
-                    0xffffff, // 白
-                    0xff69b4, // ピンク
-                    0x00ffff, // シアン
-                    0xffff00, // イエロー
-                    0xff00ff, // マゼンタ
-                    0x00ff00, // ライム
-                    0xffa500  // オレンジ
-                ];
-                return colors[Math.floor(Math.random() * colors.length)];
-            };
-
-            for (let i = 0; i < additionalParticles; i++) {
-                const i3 = i * 3;
-                positions[i3] = 0;
-                positions[i3 + 1] = 0;
-                positions[i3 + 2] = 0;
-
-                // ランダムな色を設定
-                const color = new THREE.Color(getRandomColor());
-                colors[i3] = color.r;
-                colors[i3 + 1] = color.g;
-                colors[i3 + 2] = color.b;
-
-                velocities.push({
-                    x: (Math.random() - 0.5) * 0.2,
-                    y: (Math.random() - 0.5) * 0.2,
-                    z: (Math.random() - 0.5) * 0.2
-                });
-            }
-
-            newGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            newGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-            const particleMaterial = new THREE.PointsMaterial({
-                size: 0.15,
-                transparent: true,
-                opacity: 0.8,
-                vertexColors: true
-            });
-
-            const newParticles = new THREE.Points(newGeometry, particleMaterial);
-            newParticles.position.copy(sphere.position);
-            newParticles.userData = {
-                velocities: velocities,
-                originalPosition: { ...sphere.userData.originalPosition }
-            };
-
-            // 既存のパーティクルと新しいパーティクルをマージ
-            const existingParticles = this.particles[index];
-            const mergedGeometry = new THREE.BufferGeometry();
-            const mergedPositions = new Float32Array((existingParticles.geometry.attributes.position.count + additionalParticles) * 3);
-            const mergedColors = new Float32Array((existingParticles.geometry.attributes.position.count + additionalParticles) * 3);
-
-            // 既存のパーティクルのデータをコピー
-            mergedPositions.set(existingParticles.geometry.attributes.position.array);
-            mergedColors.set(existingParticles.geometry.attributes.color.array);
-
-            // 新しいパーティクルのデータを追加
-            mergedPositions.set(positions, existingParticles.geometry.attributes.position.count * 3);
-            mergedColors.set(colors, existingParticles.geometry.attributes.color.count * 3);
-
-            mergedGeometry.setAttribute('position', new THREE.BufferAttribute(mergedPositions, 3));
-            mergedGeometry.setAttribute('color', new THREE.BufferAttribute(mergedColors, 3));
-
-            // 既存のパーティクルを更新
-            existingParticles.geometry.dispose();
-            existingParticles.geometry = mergedGeometry;
-            existingParticles.userData.velocities = [...existingParticles.userData.velocities, ...velocities];
+        // 正二十面体の色を変更
+        this.spheres.forEach(sphere => {
+            sphere.material.color.setHex(sphereColor);
         });
     }
 }
