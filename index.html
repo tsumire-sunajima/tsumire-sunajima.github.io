@@ -2,6 +2,15 @@
 <html lang="en">
 
 <head>
+  <!-- Import Map for Three.js -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -1055,6 +1064,7 @@
       })
     })
   </script>
+  <script type="module" src="./assets/js/background.js"></script>
 </body>
 
 </html>
