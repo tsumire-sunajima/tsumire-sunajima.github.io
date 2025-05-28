@@ -1,7 +1,10 @@
 # 砂島つみれのポートフォリオサイト
 このサイトは、砂島つみれのポートフォリオサイトです。
 匿名での活動用であるため、実際に勤務したタイトル情報等は別途本人までお問い合わせください。
-2025/05/27現在作成中。
+2025/05/28現在作成中。
+
+# フォーク元プロジェクト
+[varadbhogayata.github.io](https://github.com/varadbhogayata/varadbhogayata.github.io)
 
 ## ライセンス 📄
 **varadbhogayata.github.io**: This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE) file for details.
