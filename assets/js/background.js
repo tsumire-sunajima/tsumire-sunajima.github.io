@@ -102,20 +102,6 @@ class NightSky {
         });
     }
 
-    getRandomColor() {
-        const colors = [
-            0xff0000, // 赤
-            0x00ff00, // 緑
-            0x0000ff, // 青
-            0xffff00, // 黄
-            0xff00ff, // マゼンタ
-            0x00ffff, // シアン
-            0xffa500, // オレンジ
-            0x800080  // 紫
-        ];
-        return colors[Math.floor(Math.random() * colors.length)];
-    }
-
     createParticles() {
         const particleCount = 100;
         const particleGeometry = new THREE.BufferGeometry();
@@ -123,23 +109,36 @@ class NightSky {
         const particleColors = new Float32Array(particleCount * 3);
         const particleVelocities = [];
 
+        // ランダムな色を生成する関数
+        const getRandomColor = () => {
+            const colors = [
+                0xffffff, // 白
+                0xff69b4, // ピンク
+                0x00ffff, // シアン
+                0xffff00, // イエロー
+                0xff00ff, // マゼンタ
+                0x00ff00, // ライム
+                0xffa500  // オレンジ
+            ];
+            return colors[Math.floor(Math.random() * colors.length)];
+        };
+
         for (let i = 0; i < particleCount; i++) {
             const i3 = i * 3;
             particlePositions[i3] = 0;
             particlePositions[i3 + 1] = 0;
             particlePositions[i3 + 2] = 0;
 
-            // 各パーティクルにランダムな色を設定
-            const color = new THREE.Color(this.getRandomColor());
+            // ランダムな色を設定
+            const color = new THREE.Color(getRandomColor());
             particleColors[i3] = color.r;
             particleColors[i3 + 1] = color.g;
             particleColors[i3 + 2] = color.b;
 
-            // 一方向（上方向）に放出するように設定
             particleVelocities.push({
-                x: (Math.random() - 0.5) * 0.05,
-                y: Math.random() * 0.2,
-                z: (Math.random() - 0.5) * 0.05
+                x: (Math.random() - 0.5) * 0.2, // 速度を上げる
+                y: (Math.random() - 0.5) * 0.2,
+                z: (Math.random() - 0.5) * 0.2
             });
         }
 
@@ -147,10 +146,10 @@ class NightSky {
         particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
 
         const particleMaterial = new THREE.PointsMaterial({
-            size: 0.1,
+            size: 0.15, // サイズを少し大きく
             transparent: true,
             opacity: 0.8,
-            vertexColors: true
+            vertexColors: true // 頂点カラーを有効化
         });
 
         this.spheres.forEach((sphere, index) => {
@@ -179,7 +178,6 @@ class NightSky {
         // パーティクルの更新
         this.particles.forEach(particles => {
             const positions = particles.geometry.attributes.position.array;
-            const colors = particles.geometry.attributes.color.array;
             const velocities = particles.userData.velocities;
 
             for (let i = 0; i < positions.length; i += 3) {
@@ -194,25 +192,19 @@ class NightSky {
                     positions[i + 2] * positions[i + 2]
                 );
 
-                if (distance > 5) {
+                if (distance > 15) { // 移動範囲を広げる
                     positions[i] = 0;
                     positions[i + 1] = 0;
                     positions[i + 2] = 0;
                     velocities[i/3] = {
-                        x: (Math.random() - 0.5) * 0.05,
-                        y: Math.random() * 0.2,
-                        z: (Math.random() - 0.5) * 0.05
+                        x: (Math.random() - 0.5) * 0.2,
+                        y: (Math.random() - 0.5) * 0.2,
+                        z: (Math.random() - 0.5) * 0.2
                     };
-                    // パーティクルがリセットされる際に新しい色を設定
-                    const color = new THREE.Color(this.getRandomColor());
-                    colors[i] = color.r;
-                    colors[i + 1] = color.g;
-                    colors[i + 2] = color.b;
                 }
             }
 
             particles.geometry.attributes.position.needsUpdate = true;
-            particles.geometry.attributes.color.needsUpdate = true;
         });
 
         // カメラの回転を滑らかに追従
