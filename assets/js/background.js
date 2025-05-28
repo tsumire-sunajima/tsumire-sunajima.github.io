@@ -17,14 +17,27 @@ class NightSky {
         this.targetRotationY = 0;
         this.cameraDistance = 6;
         this.colors = [
-            0x1a1a2e, // ダークネイビー
-            0x16213e, // ダークブルー
-            0x0f3460, // ネイビー
-            0x1b1b2f, // ダークパープル
-            0x1f1f3d, // ダークインディゴ
-            0x2c1810, // ダークブラウン
-            0x1c1c1c  // ダークグレー
+            0xffffff, // 白
+            0xff69b4, // ピンク
+            0x00ffff, // シアン
+            0xffff00, // イエロー
+            0xff00ff, // マゼンタ
+            0x00ff00, // ライム
+            0xffa500  // オレンジ
         ];
+        this.particleColors = [
+            0xffffff, // 白
+            0xff69b4, // ピンク
+            0x00ffff, // シアン
+            0xffff00, // イエロー
+            0xff00ff, // マゼンタ
+            0x00ff00, // ライム
+            0xffa500  // オレンジ
+        ];
+        this.lastColorChange = 0; // 最後に色を変更した時間
+        this.colorChangeInterval = 1000; // 色変更の間隔（ミリ秒）
+        this.lastBgColor = null; // 前回の背景色
+        this.lastSphereColor = null; // 前回の正二十面体の色
         this.init();
     }
 
@@ -48,9 +61,6 @@ class NightSky {
             this.mouseX = (event.clientX - window.innerWidth / 2) / 10000;
             this.mouseY = (event.clientY - window.innerHeight / 2) / 10000;
         });
-
-        // クリックイベントの設定
-        document.addEventListener('click', () => this.changeColors());
 
         // アニメーション開始
         this.animate();
@@ -121,20 +131,6 @@ class NightSky {
         const particleColors = new Float32Array(particleCount * 3);
         const particleVelocities = [];
 
-        // ランダムな色を生成する関数
-        const getRandomColor = () => {
-            const colors = [
-                0xffffff, // 白
-                0xff69b4, // ピンク
-                0x00ffff, // シアン
-                0xffff00, // イエロー
-                0xff00ff, // マゼンタ
-                0x00ff00, // ライム
-                0xffa500  // オレンジ
-            ];
-            return colors[Math.floor(Math.random() * colors.length)];
-        };
-
         for (let i = 0; i < particleCount; i++) {
             const i3 = i * 3;
             particlePositions[i3] = 0;
@@ -142,13 +138,13 @@ class NightSky {
             particlePositions[i3 + 2] = 0;
 
             // ランダムな色を設定
-            const color = new THREE.Color(getRandomColor());
+            const color = new THREE.Color(this.particleColors[Math.floor(Math.random() * this.particleColors.length)]);
             particleColors[i3] = color.r;
             particleColors[i3 + 1] = color.g;
             particleColors[i3 + 2] = color.b;
 
             particleVelocities.push({
-                x: (Math.random() - 0.5) * 0.2, // 速度を上げる
+                x: (Math.random() - 0.5) * 0.2,
                 y: (Math.random() - 0.5) * 0.2,
                 z: (Math.random() - 0.5) * 0.2
             });
@@ -158,10 +154,10 @@ class NightSky {
         particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
 
         const particleMaterial = new THREE.PointsMaterial({
-            size: 0.15, // サイズを少し大きく
+            size: 0.15,
             transparent: true,
             opacity: 0.8,
-            vertexColors: true // 頂点カラーを有効化
+            vertexColors: true
         });
 
         this.spheres.forEach((sphere, index) => {
@@ -204,7 +200,7 @@ class NightSky {
                     positions[i + 2] * positions[i + 2]
                 );
 
-                if (distance > 15) { // 移動範囲を広げる
+                if (distance > 15) {
                     positions[i] = 0;
                     positions[i + 1] = 0;
                     positions[i + 2] = 0;
@@ -218,6 +214,13 @@ class NightSky {
 
             particles.geometry.attributes.position.needsUpdate = true;
         });
+
+        // 1秒ごとに色を変更
+        const currentTime = Date.now();
+        if (currentTime - this.lastColorChange >= this.colorChangeInterval) {
+            this.changeColors();
+            this.lastColorChange = currentTime;
+        }
 
         // カメラの回転を滑らかに追従
         this.targetRotationX = this.mouseY * 0.5;
@@ -236,12 +239,19 @@ class NightSky {
 
     // 色を変更するメソッド
     changeColors() {
-        // 背景色と正二十面体の色をランダムに選択
+        // 背景色と正二十面体の色をランダムに選択（前回と異なる色を選択）
         let bgColor, sphereColor;
         do {
             bgColor = this.colors[Math.floor(Math.random() * this.colors.length)];
+        } while (bgColor === this.lastBgColor);
+
+        do {
             sphereColor = this.colors[Math.floor(Math.random() * this.colors.length)];
-        } while (bgColor === sphereColor);
+        } while (sphereColor === this.lastSphereColor || sphereColor === bgColor);
+
+        // 前回の色を保存
+        this.lastBgColor = bgColor;
+        this.lastSphereColor = sphereColor;
 
         // 背景色を変更
         this.renderer.setClearColor(bgColor, 1);
@@ -249,6 +259,18 @@ class NightSky {
         // 正二十面体の色を変更
         this.spheres.forEach(sphere => {
             sphere.material.color.setHex(sphereColor);
+        });
+
+        // パーティクルの色を更新
+        this.particles.forEach(particles => {
+            const colors = particles.geometry.attributes.color.array;
+            for (let i = 0; i < colors.length; i += 3) {
+                const color = new THREE.Color(this.particleColors[Math.floor(Math.random() * this.particleColors.length)]);
+                colors[i] = color.r;
+                colors[i + 1] = color.g;
+                colors[i + 2] = color.b;
+            }
+            particles.geometry.attributes.color.needsUpdate = true;
         });
     }
 }
