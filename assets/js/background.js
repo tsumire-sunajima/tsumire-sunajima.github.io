@@ -102,6 +102,20 @@ class NightSky {
         });
     }
 
+    getRandomColor() {
+        const colors = [
+            0xff0000, // 赤
+            0x00ff00, // 緑
+            0x0000ff, // 青
+            0xffff00, // 黄
+            0xff00ff, // マゼンタ
+            0x00ffff, // シアン
+            0xffa500, // オレンジ
+            0x800080  // 紫
+        ];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
     createParticles() {
         const particleCount = 100;
         const particleGeometry = new THREE.BufferGeometry();
@@ -114,10 +128,11 @@ class NightSky {
             particlePositions[i3 + 1] = 0;
             particlePositions[i3 + 2] = 0;
 
+            // 一方向（上方向）に放出するように設定
             particleVelocities.push({
-                x: (Math.random() - 0.5) * 0.1,
-                y: (Math.random() - 0.5) * 0.1,
-                z: (Math.random() - 0.5) * 0.1
+                x: (Math.random() - 0.5) * 0.05, // 横方向の揺らぎを小さく
+                y: Math.random() * 0.2,          // 上方向への速度を大きく
+                z: (Math.random() - 0.5) * 0.05  // 奥行き方向の揺らぎを小さく
             });
         }
 
@@ -127,7 +142,8 @@ class NightSky {
             color: 0xffffff,
             size: 0.1,
             transparent: true,
-            opacity: 0.8
+            opacity: 0.8,
+            vertexColors: true
         });
 
         this.spheres.forEach((sphere, index) => {
@@ -135,7 +151,8 @@ class NightSky {
             particles.position.copy(sphere.position);
             particles.userData = {
                 velocities: particleVelocities.map(v => ({ ...v })),
-                originalPosition: { ...sphere.userData.originalPosition }
+                originalPosition: { ...sphere.userData.originalPosition },
+                colors: Array(particleCount).fill().map(() => this.getRandomColor())
             };
             this.particles.push(particles);
             this.scene.add(particles);
@@ -175,10 +192,12 @@ class NightSky {
                     positions[i + 1] = 0;
                     positions[i + 2] = 0;
                     velocities[i/3] = {
-                        x: (Math.random() - 0.5) * 0.1,
-                        y: (Math.random() - 0.5) * 0.1,
-                        z: (Math.random() - 0.5) * 0.1
+                        x: (Math.random() - 0.5) * 0.05,
+                        y: Math.random() * 0.2,
+                        z: (Math.random() - 0.5) * 0.05
                     };
+                    // パーティクルがリセットされる際に色も更新
+                    particles.userData.colors[i/3] = this.getRandomColor();
                 }
             }
 
