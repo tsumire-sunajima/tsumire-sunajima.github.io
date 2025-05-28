@@ -1,5 +1,11 @@
+import * as THREE from 'three';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { WireframeGeometry2 } from 'three/addons/lines/WireframeGeometry2.js';
+import { Wireframe } from 'three/addons/lines/Wireframe.js';
+
 class NightSky {
     constructor() {
+        this.lineMaterial = null; 
         this.container = document.querySelector('.full-height');
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -54,12 +60,13 @@ class NightSky {
         const geometry = new THREE.IcosahedronGeometry(2.5, 1);
         
         // ワイヤーフレームのマテリアルを作成
-        const material = new THREE.MeshBasicMaterial({
+        this.lineMaterial = new LineMaterial({ // Note: 'this.' prefix
             color: 0xffffff,
-            wireframe: true,
-            transparent: true,
-            opacity: 0.8
+            linewidth: 4, // in pixels
+            // transparent: true, // LineMaterial might handle transparency differently or by default
+            // opacity: 0.8 // Opacity is part of the color in LineMaterial (e.g. using hex with alpha or .opacity property)
         });
+        this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
 
         // 3つの正二十面体を作成（カメラにより近い位置に配置）
         const positions = [
@@ -69,18 +76,20 @@ class NightSky {
         ];
 
         positions.forEach((pos, index) => {
-            const icosahedron = new THREE.Mesh(geometry, material);
-            icosahedron.position.set(pos.x, pos.y, pos.z);
+            const wireframeGeometry = new WireframeGeometry2(geometry); // Use the existing 'geometry'
+            const wireframeMesh = new Wireframe(wireframeGeometry, this.lineMaterial);
+            wireframeMesh.computeLineDistances();
+            wireframeMesh.position.set(pos.x, pos.y, pos.z);
             // 各正二十面体に異なる回転速度を設定
-            icosahedron.userData = {
+            wireframeMesh.userData = {
                 rotationSpeed: {
                     x: 0.002 * (index + 1),
                     y: 0.003 * (index + 1),
                     z: 0.001 * (index + 1)
                 }
             };
-            this.spheres.push(icosahedron);
-            this.scene.add(icosahedron);
+            this.spheres.push(wireframeMesh);
+            this.scene.add(wireframeMesh);
         });
     }
 
@@ -107,6 +116,9 @@ class NightSky {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        if (this.lineMaterial) { // Add a check to ensure lineMaterial is initialized
+            this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+        }
     }
 }
 
