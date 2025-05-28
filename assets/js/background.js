@@ -120,6 +120,7 @@ class NightSky {
         const particleCount = 100;
         const particleGeometry = new THREE.BufferGeometry();
         const particlePositions = new Float32Array(particleCount * 3);
+        const particleColors = new Float32Array(particleCount * 3);
         const particleVelocities = [];
 
         for (let i = 0; i < particleCount; i++) {
@@ -128,18 +129,24 @@ class NightSky {
             particlePositions[i3 + 1] = 0;
             particlePositions[i3 + 2] = 0;
 
+            // 各パーティクルにランダムな色を設定
+            const color = new THREE.Color(this.getRandomColor());
+            particleColors[i3] = color.r;
+            particleColors[i3 + 1] = color.g;
+            particleColors[i3 + 2] = color.b;
+
             // 一方向（上方向）に放出するように設定
             particleVelocities.push({
-                x: (Math.random() - 0.5) * 0.05, // 横方向の揺らぎを小さく
-                y: Math.random() * 0.2,          // 上方向への速度を大きく
-                z: (Math.random() - 0.5) * 0.05  // 奥行き方向の揺らぎを小さく
+                x: (Math.random() - 0.5) * 0.05,
+                y: Math.random() * 0.2,
+                z: (Math.random() - 0.5) * 0.05
             });
         }
 
         particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        particleGeometry.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
 
         const particleMaterial = new THREE.PointsMaterial({
-            color: 0xffffff,
             size: 0.1,
             transparent: true,
             opacity: 0.8,
@@ -151,8 +158,7 @@ class NightSky {
             particles.position.copy(sphere.position);
             particles.userData = {
                 velocities: particleVelocities.map(v => ({ ...v })),
-                originalPosition: { ...sphere.userData.originalPosition },
-                colors: Array(particleCount).fill().map(() => this.getRandomColor())
+                originalPosition: { ...sphere.userData.originalPosition }
             };
             this.particles.push(particles);
             this.scene.add(particles);
@@ -173,6 +179,7 @@ class NightSky {
         // パーティクルの更新
         this.particles.forEach(particles => {
             const positions = particles.geometry.attributes.position.array;
+            const colors = particles.geometry.attributes.color.array;
             const velocities = particles.userData.velocities;
 
             for (let i = 0; i < positions.length; i += 3) {
@@ -196,12 +203,16 @@ class NightSky {
                         y: Math.random() * 0.2,
                         z: (Math.random() - 0.5) * 0.05
                     };
-                    // パーティクルがリセットされる際に色も更新
-                    particles.userData.colors[i/3] = this.getRandomColor();
+                    // パーティクルがリセットされる際に新しい色を設定
+                    const color = new THREE.Color(this.getRandomColor());
+                    colors[i] = color.r;
+                    colors[i + 1] = color.g;
+                    colors[i + 2] = color.b;
                 }
             }
 
             particles.geometry.attributes.position.needsUpdate = true;
+            particles.geometry.attributes.color.needsUpdate = true;
         });
 
         // カメラの回転を滑らかに追従
