@@ -5,12 +5,12 @@ import { Wireframe } from 'three/addons/lines/Wireframe.js';
 
 class NightSky {
     constructor() {
-        this.lineMaterial = null; 
         this.container = document.querySelector('.full-height');
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         this.renderer = new THREE.WebGLRenderer({ alpha: true });
         this.spheres = [];
+        this.particles = [];
         this.mouseX = 0;
         this.mouseY = 0;
         this.targetRotationX = 0;
@@ -31,6 +31,9 @@ class NightSky {
         // ワイヤーフレームの正二十面体を3つ作成
         this.createWireframeSpheres();
 
+        // パーティクルの作成
+        this.createParticles();
+
         // マウスイベントの設定
         document.addEventListener('mousemove', (event) => {
             this.mouseX = (event.clientX - window.innerWidth / 2) / 10000;
@@ -45,8 +48,8 @@ class NightSky {
     }
 
     updateRendererSize() {
-        const sideNavWidth = 190; // side-navの幅
-        const isLargeScreen = window.innerWidth > 992; // 992px以上がデスクトップ表示
+        const sideNavWidth = 190;
+        const isLargeScreen = window.innerWidth > 992;
         const width = isLargeScreen ? window.innerWidth - sideNavWidth : window.innerWidth;
         const height = window.innerHeight;
 
@@ -67,17 +70,14 @@ class NightSky {
     }
 
     createWireframeSpheres() {
-        // 正二十面体のジオメトリを作成
         const geometry = new THREE.IcosahedronGeometry(2.5, 1);
         
-        // ワイヤーフレームのマテリアルを作成
         this.lineMaterial = new LineMaterial({
             color: 0xffffff,
             linewidth: 4,
         });
         this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
 
-        // 3つの正二十面体を作成（カメラにより近い位置に配置）
         const positions = [
             { x: 5, y: -10, z: -3 },     // 中央
             { x: 3, y: -12, z: -7 },     // 左
@@ -89,16 +89,56 @@ class NightSky {
             const wireframeMesh = new Wireframe(wireframeGeometry, this.lineMaterial);
             wireframeMesh.computeLineDistances();
             wireframeMesh.position.set(pos.x, pos.y, pos.z);
-            // 各正二十面体に異なる回転速度を設定
             wireframeMesh.userData = {
                 rotationSpeed: {
                     x: 0.002 * (index + 1),
                     y: 0.003 * (index + 1),
                     z: 0.001 * (index + 1)
-                }
+                },
+                originalPosition: { ...pos }
             };
             this.spheres.push(wireframeMesh);
             this.scene.add(wireframeMesh);
+        });
+    }
+
+    createParticles() {
+        const particleCount = 100;
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        const particleVelocities = [];
+
+        for (let i = 0; i < particleCount; i++) {
+            const i3 = i * 3;
+            particlePositions[i3] = 0;
+            particlePositions[i3 + 1] = 0;
+            particlePositions[i3 + 2] = 0;
+
+            particleVelocities.push({
+                x: (Math.random() - 0.5) * 0.1,
+                y: (Math.random() - 0.5) * 0.1,
+                z: (Math.random() - 0.5) * 0.1
+            });
+        }
+
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0xffffff,
+            size: 0.1,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        this.spheres.forEach((sphere, index) => {
+            const particles = new THREE.Points(particleGeometry.clone(), particleMaterial);
+            particles.position.copy(sphere.position);
+            particles.userData = {
+                velocities: particleVelocities.map(v => ({ ...v })),
+                originalPosition: { ...sphere.userData.originalPosition }
+            };
+            this.particles.push(particles);
+            this.scene.add(particles);
         });
     }
 
@@ -111,6 +151,38 @@ class NightSky {
             sphere.rotation.x += rotationSpeed.x;
             sphere.rotation.y += rotationSpeed.y;
             sphere.rotation.z += rotationSpeed.z;
+        });
+
+        // パーティクルの更新
+        this.particles.forEach(particles => {
+            const positions = particles.geometry.attributes.position.array;
+            const velocities = particles.userData.velocities;
+
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i] += velocities[i/3].x;
+                positions[i + 1] += velocities[i/3].y;
+                positions[i + 2] += velocities[i/3].z;
+
+                // パーティクルが一定距離以上離れたら元の位置に戻す
+                const distance = Math.sqrt(
+                    positions[i] * positions[i] +
+                    positions[i + 1] * positions[i + 1] +
+                    positions[i + 2] * positions[i + 2]
+                );
+
+                if (distance > 5) {
+                    positions[i] = 0;
+                    positions[i + 1] = 0;
+                    positions[i + 2] = 0;
+                    velocities[i/3] = {
+                        x: (Math.random() - 0.5) * 0.1,
+                        y: (Math.random() - 0.5) * 0.1,
+                        z: (Math.random() - 0.5) * 0.1
+                    };
+                }
+            }
+
+            particles.geometry.attributes.position.needsUpdate = true;
         });
 
         // カメラの回転を滑らかに追従
