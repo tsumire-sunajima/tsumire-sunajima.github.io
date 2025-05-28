@@ -2,7 +2,6 @@ import * as THREE from 'three';
 import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { WireframeGeometry2 } from 'three/addons/lines/WireframeGeometry2.js';
 import { Wireframe } from 'three/addons/lines/Wireframe.js';
-import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
 class NightSky {
     constructor() {
@@ -31,7 +30,6 @@ class NightSky {
 
         // ワイヤーフレームの正二十面体を3つ作成
         this.createWireframeSpheres();
-        this.initGui(); // Add this line
 
         // マウスイベントの設定
         document.addEventListener('mousemove', (event) => {
@@ -68,6 +66,7 @@ class NightSky {
             // transparent: true, // LineMaterial might handle transparency differently or by default
             // opacity: 0.8 // Opacity is part of the color in LineMaterial (e.g. using hex with alpha or .opacity property)
         });
+        this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
 
         // 3つの正二十面体を作成（カメラにより近い位置に配置）
         const positions = [
@@ -117,22 +116,9 @@ class NightSky {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    initGui() {
-        const gui = new GUI();
-        const params = {
-            lineWidth: this.lineMaterial.linewidth,
-            lineColor: this.lineMaterial.color.getHex(),
-        };
-
-        gui.add(params, 'lineWidth', 1, 10).name('Line Width').onChange((value) => {
-            this.lineMaterial.linewidth = value;
-        });
-
-        gui.addColor(params, 'lineColor').name('Line Color').onChange((value) => {
-            this.lineMaterial.color.setHex(value);
-        });
+        if (this.lineMaterial) { // Add a check to ensure lineMaterial is initialized
+            this.lineMaterial.resolution.set(window.innerWidth, window.innerHeight);
+        }
     }
 }
 
