@@ -4,6 +4,6 @@
 2025/05/27現在作成中。
 
 ## ライセンス 📄
-This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE) file for details.
-- **LINE Seed JP**: Copyright (c) 2023 LINE Corporation, SIL Open Font License, Version 1.1 ([https://opensource.org/licenses/OFL-1.1](https://opensource.org/licenses/OFL-1.1))
+**varadbhogayata.github.io**: This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE) file for details.
+**LINE Seed JP**: Copyright (c) 2023 LINE Corporation, SIL Open Font License, Version 1.1 ([https://opensource.org/licenses/OFL-1.1](https://opensource.org/licenses/OFL-1.1))
 
