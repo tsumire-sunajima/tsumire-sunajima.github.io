@@ -601,7 +601,7 @@ h1, h2, h3 {
 
 p {
   font-family: 'LINE Seed JP', sans-serif;
-  font-weight: 400;
+  font-weight: 300;
 }
 
 .small-text {
@@ -655,4 +655,36 @@ p {
 
 .font-extrabold {
   font-weight: 900;
+}
+
+.label-row {
+  display: flex;
+  height: 45px;
+  margin-bottom: 0;
+}
+
+.left-label, .right-label {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  font-size: 1.3em;
+  opacity: 0.5;
+}
+
+.left-label {
+  background: #90caf9;
+  color: #1976d2;
+  flex: 1;
+  padding-left: 12px;
+  justify-content: flex-start;
+  border-top-left-radius: 4px;
+}
+
+.right-label {
+  background: #90caf9;
+  color: #1976d2;
+  flex: 1;
+  padding-right: 12px;
+  justify-content: flex-end;
+  border-top-right-radius: 4px;
 }
